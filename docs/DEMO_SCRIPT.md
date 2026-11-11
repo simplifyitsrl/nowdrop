@@ -1,0 +1,11 @@
+# NowDrop — demo script (under 3 minutes)
+
+Setup before recording: hosted URL open on a laptop (seller console, Chrome, mic allowed), two phones (or two browser windows) on the show link, each ready to log in with a different PayPal sandbox buyer. PayPal activity panel expanded. No third-party logos or copyrighted music on screen.
+
+| Time | On screen | Say |
+|---|---|---|
+| **0:00–0:20** | A mock comment stream: “mine!”, “mine!!”, “me!” — then an unpaid order list. | “Live sellers sell by asking *who wants it?* People type *mine!* — and then disappear. Sellers lose hours chasing payments, and a lot of *winners* never pay.” |
+| **0:20–1:00** | Seller console. Tap the mic: “This one is a hand-knit alpaca sweater, size M, fifteen dollars, I only have one… **now**.” The drop card fills in; cut to both phones showing the drop without reloading. | “With NowDrop I just describe the product and say *now*. Claude turns my words into a listing — title, price, size, quantity — and it's live on every buyer's phone in about two seconds. If I forget the price, it won't publish.” |
+| **1:00–1:40** | Both buyers press PayPal and approve at the same time. Phone A: “You got it! Order ND-00001”. Phone B: “Sold out — someone was faster. You were not charged.” Seller feed shows the winner’s name. Open PayPal activity: create order ×2, authorize ×2, capture ×1, void ×1. | “Both buyers pay. PayPal authorizes both, then one atomic claim decides: the first secured payment wins and is captured. The other authorization is voided — no charge, no refund to chase. Here are the real PayPal calls.” |
+| **1:40–2:20** | Assistant: type “how much have I sold?” → answer. Type “refund the last order” → Confirm button → feed shows Refunded. Press **End show** → recap with totals, per-item table, sell-through time and a ready message per buyer. | “After the show I ask my assistant how I did, and refund an order in one click. The recap has the numbers from PayPal and a message for each buyer asking for shipping.” |
+| **2:20–2:50** | Landing page, then QR code. | “NowDrop is for the millions of small sellers in Latin America and beyond who already sell live. No integration needed — one link in the chat. Next: a waiting line that captures the next buyer automatically, and countdown drops. Say it, drop it, first paid wins.” |

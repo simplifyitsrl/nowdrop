@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: nowdrop
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_BASE_URL
+        value: https://api-m.sandbox.paypal.com
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: claude-haiku-5-5
+      - key: BASE_URL
+        sync: false
+      - key: DEFAULT_CURRENCY
+        value: USD
+      - key: TRIGGER_WORDS
+        value: now,ahora
+      - key: DATABASE_PATH
+        value: /data/nowdrop.db
