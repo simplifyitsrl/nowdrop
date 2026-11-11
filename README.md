@@ -95,7 +95,7 @@ tests/         race, idempotency, capture failure, AI drop, assistant, recap
 ### 3. Configure and run
 
 ```bash
-git clone <this repo> nowdrop && cd nowdrop
+git clone https://github.com/simplifyitsrl/nowdrop.git && cd nowdrop
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 cp .env.example .env        # then fill in PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, ANTHROPIC_API_KEY
