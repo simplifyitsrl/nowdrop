@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ show.title }} · NowDrop{% endblock %}
+{% block head %}
+{% if settings.paypal_configured %}
+<script src="https://www.paypal.com/sdk/js?client-id={{ settings.paypal_client_id | urlencode }}&currency={{ show.currency }}&intent=authorize&components=buttons&disable-funding=paylater,credit" data-namespace="paypal" defer></script>
+{% endif %}
+{% endblock %}
+{% block body %}
+<div class="buyer">
+  <header class="topbar">
+    {% include "_brand.html" %}
+    <span class="pill {{ 'pill-live' if show.status == 'live' else '' }}" id="show-pill">{{ 'Live' if show.status == 'live' else 'Ended' }}</span>
+  </header>
+  <p class="eyebrow" style="margin:-4px 0 12px">{{ show.title }}</p>
+
+  <main class="buyer-stage" id="stage" aria-live="polite">
+    <div class="processing"><div class="spinner"></div></div>
+  </main>
+  <p class="tiny muted" style="text-align:center;margin-top:20px">Fixed price · first secured payment wins · if you're too late you are never charged.</p>
+</div>
+
+<div class="result hidden" id="result" role="dialog" aria-modal="true" aria-labelledby="result-title">
+  <div class="card result-card" id="result-card"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script id="config" type="application/json">{{ {
+  "slug": show.slug, "paypal": settings.paypal_configured
+} | tojson }}</script>
+<script src="/static/common.js?v=1"></script>
+<script src="/static/show.js?v=1"></script>
+{% endblock %}

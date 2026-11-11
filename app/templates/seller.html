@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}{{ show.title }} · Seller console · NowDrop{% endblock %}
+{% block body %}
+<header class="topbar">
+  {% include "_brand.html" %}
+  <div class="topbar-actions">
+    <span class="pill {{ 'pill-live' if show.status == 'live' else '' }}" id="show-status">{{ 'Live' if show.status == 'live' else 'Ended' }}</span>
+    <a class="btn btn-ghost btn-sm" href="/s/{{ show.slug }}" target="_blank" rel="noopener">Open buyer page</a>
+    <button class="btn btn-sm" id="end-show" {% if show.status != 'live' %}disabled{% endif %}>End show</button>
+  </div>
+</header>
+
+<div class="show-head">
+  <div>
+    <p class="eyebrow">Seller console · keep this link private</p>
+    <h1>{{ show.title }}</h1>
+  </div>
+  <div class="row">
+    <label for="lang" class="small">Speech language</label>
+    <select id="lang" style="width:auto">
+      <option value="en-US" {% if show.language == 'en-US' %}selected{% endif %}>English (“now”)</option>
+      <option value="es-419" {% if show.language == 'es-419' %}selected{% endif %}>Español (“ahora”)</option>
+    </select>
+  </div>
+</div>
+
+<div class="banners">
+  {% if not settings.paypal_configured %}
+  <div class="banner"><span>⚠</span><span><strong>PayPal is not configured.</strong> Set <code>PAYPAL_CLIENT_ID</code> and <code>PAYPAL_CLIENT_SECRET</code> (sandbox) in <code>.env</code> and restart. Drops will show, but buyers cannot pay.</span></div>
+  {% endif %}
+  {% if not settings.ai_configured %}
+  <div class="banner"><span>⚠</span><span><strong>AI is not configured.</strong> Set <code>ANTHROPIC_API_KEY</code> in <code>.env</code> and restart to create drops from speech and use the assistant and recap. The manual drop form below still works.</span></div>
+  {% endif %}
+  <div class="banner hidden" id="speech-unsupported"><span>🎙</span><span><strong>Voice needs Chrome.</strong> This browser has no speech recognition. Type the description in the box instead — it works the same way.</span></div>
+</div>
+
+<main class="console">
+  <div class="col">
+    <section class="card" aria-labelledby="voice-h">
+      <div class="card-title"><h2 id="voice-h">Describe the product</h2><span class="tiny muted" id="trigger-hint">Say “<span id="trigger-word">now</span>” to drop</span></div>
+      <div class="mic-area">
+        <button class="mic" id="mic" aria-pressed="false" aria-label="Start listening">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg>
+        </button>
+        <div class="mic-help">
+          <strong id="mic-label">Tap to start listening</strong>
+          <span class="small muted">Talk to your audience as usual. When you say the trigger word, everything since the last drop becomes a listing.</span>
+        </div>
+      </div>
+      <div class="transcript" id="transcript" aria-live="polite"><span class="muted">Live transcript appears here…</span></div>
+
+      <div class="divider">or type it</div>
+      <form id="text-form" class="field">
+        <textarea id="drop-text" placeholder="Alpaca sweater size M, fifteen dollars, I have three" maxlength="2000"></textarea>
+        <div class="row">
+          <label class="btn btn-ghost btn-sm" for="photo" style="cursor:pointer">📷 Add photo</label>
+          <input id="photo" type="file" accept="image/*" capture="environment" class="hidden">
+          <span class="photo-chip hidden" id="photo-chip"><img id="photo-preview" alt="Selected photo"><span>Photo attached to next drop</span><button type="button" class="chip" id="photo-clear">Remove</button></span>
+          <span class="grow"></span>
+          <button class="btn btn-accent" type="submit" id="drop-btn">Drop it</button>
+        </div>
+      </form>
+      <div class="ai-status hidden" id="ai-status" role="status"></div>
+
+      <details class="manual">
+        <summary>Manual drop (no AI)</summary>
+        <form id="manual-form">
+          <input type="text" name="title" placeholder="Product name" required maxlength="80">
+          <div class="row">
+            <input class="grow" type="number" name="price" placeholder="Price ({{ show.currency }})" step="0.01" min="0.01" required>
+            <input class="grow" type="number" name="quantity" placeholder="Units" value="1" min="1" max="999" required>
+          </div>
+          <input type="text" name="description" placeholder="Short description (optional)" maxlength="400">
+          <button class="btn btn-sm" type="submit">Publish drop</button>
+        </form>
+      </details>
+    </section>
+
+    <section class="card" aria-labelledby="drop-h">
+      <div class="card-title"><h2 id="drop-h">Current drop</h2><span class="pill" id="drop-pill">None</span></div>
+      <div id="drop-body"><p class="empty">No drop yet. Describe a product and say the trigger word.</p></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="card" aria-labelledby="orders-h">
+      <div class="card-title"><h2 id="orders-h">Orders</h2><span class="tiny muted">live</span></div>
+      <div class="kpis">
+        <div class="kpi"><div class="stat-val" id="kpi-revenue">—</div><div class="stat-lbl">Revenue</div></div>
+        <div class="kpi"><div class="stat-val" id="kpi-units">0</div><div class="stat-lbl">Units sold</div></div>
+        <div class="kpi"><div class="stat-val" id="kpi-late">0</div><div class="stat-lbl">Too late, not charged</div></div>
+      </div>
+      <div class="feed" id="feed"><p class="empty" id="feed-empty">Winners appear here the moment they pay.</p></div>
+    </section>
+
+    <section class="card" aria-labelledby="chat-h">
+      <div class="card-title"><h2 id="chat-h">Assistant</h2><span class="tiny muted">AI · reads your sales</span></div>
+      <div class="chat">
+        <div class="chat-log" id="chat-log"></div>
+        <div class="chat-suggest">
+          <button class="chip" data-q="How much have I sold?">How much have I sold?</button>
+          <button class="chip" data-q="Who bought the last item?">Who bought the last item?</button>
+          <button class="chip" data-q="Close the current drop">Close the current drop</button>
+        </div>
+        <form id="chat-form" class="row">
+          <input class="grow" type="text" id="chat-input" placeholder="Ask about your sales, or “refund Maria's order”" autocomplete="off" maxlength="500">
+          <button class="btn" type="submit">Ask</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <div class="col col-side">
+    <section class="card share" aria-labelledby="share-h">
+      <div><p class="eyebrow">Pin this in your stream</p><h2 id="share-h" style="margin-top:4px">Show link</h2></div>
+      <div class="qr" aria-label="QR code for the show link">{{ qr_svg | safe }}</div>
+      <div class="link-box"><input type="text" readonly value="{{ show_url }}" id="show-url"><button class="btn btn-sm" id="copy-link" type="button">Copy</button></div>
+      <p class="tiny muted">One permanent link for the whole show. It always shows the current drop.</p>
+    </section>
+
+    <section class="card">
+      <details class="pp" id="pp-details">
+        <summary><h2>PayPal activity</h2><span class="pill" id="pp-count">0 calls</span></summary>
+        <p class="tiny muted" style="margin-top:8px">Real REST calls to the PayPal sandbox: orders, authorize, capture, void, refund.</p>
+        <div class="pplog" id="pplog"></div>
+      </details>
+    </section>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+<script id="config" type="application/json">{{ {
+  "showId": show.id, "slug": show.slug, "status": show.status, "language": show.language,
+  "currency": show.currency, "triggerWords": settings.trigger_words
+} | tojson }}</script>
+<script src="/static/common.js?v=1"></script>
+<script src="/static/seller.js?v=1"></script>
+{% endblock %}

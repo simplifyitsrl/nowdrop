@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}NowDrop · Say it. Drop it. First paid wins.{% endblock %}
+{% block body %}
+<header class="topbar">
+  {% include "_brand.html" %}
+</header>
+<main class="landing">
+  <section class="hero">
+    <div>
+      <span class="pill pill-live">Built for live sellers</span>
+      <h1 style="margin-top:18px">Say it. <em>Drop it.</em><br>First paid wins.</h1>
+      <p class="lead">On a live stream, “mine!” in the comments is not a sale. NowDrop turns your voice into a live listing in seconds, and the first buyer whose PayPal payment is secured gets it. Everyone else is never charged.</p>
+      <div class="row small muted">
+        <span>Fixed price, not an auction</span>·<span>No app for buyers</span>·<span>One link for the whole show</span>
+      </div>
+    </div>
+    <form class="card start-card" method="post" action="/shows">
+      <div>
+        <p class="eyebrow">Go live</p>
+        <h2 style="font-size:1.5rem;margin-top:4px">Start a live show</h2>
+      </div>
+      <div class="field">
+        <label for="title">Show name</label>
+        <input id="title" name="title" type="text" maxlength="80" placeholder="Friday vintage drop" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="language">I speak</label>
+        <select id="language" name="language">
+          <option value="en-US">English — trigger word “now”</option>
+          <option value="es-419">Español — palabra clave “ahora”</option>
+        </select>
+      </div>
+      <button class="btn btn-accent btn-lg btn-block" type="submit">Start a live show</button>
+      <p class="tiny muted">No sign-up. You get a private seller console and a public link for buyers.</p>
+    </form>
+  </section>
+
+  <h2 class="section-title">How it works</h2>
+  <section class="steps">
+    <div class="card step"><div class="num">01</div><h3>Describe it out loud</h3>
+      <p>“Alpaca sweater, size M, fifteen dollars, I have three… <strong>now</strong>.” AI turns your words (and an optional photo) into a listing and publishes it.</p></div>
+    <div class="card step"><div class="num">02</div><h3>Buyers race with PayPal</h3>
+      <p>Your pinned link shows the drop instantly. Each payment is authorized first, then an atomic claim decides who gets a unit.</p></div>
+    <div class="card step"><div class="num">03</div><h3>Winners pay, the rest don't</h3>
+      <p>Winners are captured and the order is recorded under their name. Late buyers get a void: never charged, no refunds to chase.</p></div>
+  </section>
+
+  <section class="card judge">
+    <p class="eyebrow" style="color:#a59fb2">For judges</p>
+    <h2 style="margin-top:4px">Test it in 2 minutes</h2>
+    <ol>
+      <li>Click <strong>Start a live show</strong> above.</li>
+      <li>In the console, type <code>Alpaca sweater size M, fifteen dollars, I have two</code> in the text box and press <strong>Drop it</strong> (or use the mic in Chrome and end with “now”).</li>
+      <li>Open the show link (or scan the QR) in two browsers and pay with two PayPal sandbox buyer accounts.</li>
+      <li>Watch one win and the other see “You were not charged”. Open <strong>PayPal activity</strong> to see authorize, capture and void.</li>
+      <li>Ask the assistant “how much have I sold?”, refund an order, then press <strong>End show</strong> for the AI recap.</li>
+    </ol>
+  </section>
+</main>
+<footer class="footer">NowDrop · PayPal sandbox demo · MIT licensed</footer>
+{% endblock %}

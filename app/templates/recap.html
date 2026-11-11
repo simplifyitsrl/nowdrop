@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Recap · {{ show.title }} · NowDrop{% endblock %}
+{% block body %}
+<header class="topbar">
+  {% include "_brand.html" %}
+  <div class="topbar-actions">
+    <a class="btn btn-ghost btn-sm" href="/seller/{{ show.id }}">Back to console</a>
+    <a class="btn btn-sm" href="/">New show</a>
+  </div>
+</header>
+<main class="recap">
+  <div>
+    <p class="eyebrow">Show recap{% if show.status == 'live' %} · show still live{% endif %}</p>
+    <h1 style="font-size:2.2rem;margin-top:4px">{{ show.title }}</h1>
+  </div>
+
+  <section class="recap-kpis">
+    <div class="kpi"><div class="stat-val">{{ stats.revenue_display }}</div><div class="stat-lbl">Total sold</div></div>
+    <div class="kpi"><div class="stat-val">{{ stats.units_sold }}</div><div class="stat-lbl">Units</div></div>
+    <div class="kpi"><div class="stat-val">{{ stats.drops }}</div><div class="stat-lbl">Drops</div></div>
+    <div class="kpi"><div class="stat-val">{{ stats.buyers_too_late }}</div><div class="stat-lbl">Too late · not charged</div></div>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><h2>How it went</h2><span class="pill" id="ai-pill">AI summary</span></div>
+    <p class="summary" id="summary"><span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:-3px"></span>&nbsp; Writing your recap…</p>
+  </section>
+
+  <section class="card">
+    <div class="card-title"><h2>Per item</h2>{% if stats.refunded_orders %}<span class="pill">{{ stats.refunded_orders }} refunded · {{ stats.refunded_display }}</span>{% endif %}</div>
+    {% if stats.per_drop %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Item</th><th class="num">Price</th><th class="num">Sold</th><th class="num">Revenue</th><th class="num">Sell-through</th></tr></thead>
+      <tbody>
+      {% for d in stats.per_drop %}
+        <tr><td>{{ d.title }}</td><td class="num">{{ d.price_display }}</td><td class="num">{{ d.units_sold }}/{{ d.quantity }}</td>
+          <td class="num">{{ d.revenue_display }}</td>
+          <td class="num">{% if d.seconds_to_sell_out is not none %}sold out in {{ '%.1f' % d.seconds_to_sell_out }}s{% else %}<span class="muted">{{ d.status | replace('_', ' ') }}</span>{% endif %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}<p class="empty">No drops in this show.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-title"><h2>Messages to buyers</h2><span class="tiny muted">copy and send to ask for shipping details</span></div>
+    <div class="messages" id="messages"><p class="empty">Preparing messages…</p></div>
+  </section>
+  <div class="row" style="justify-content:flex-end"><button class="btn btn-ghost btn-sm" id="regen">Regenerate recap</button></div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<script src="/static/common.js?v=1"></script>
+<script>
+(() => {
+  const { $, esc, api, toast } = ND;
+  const showId = {{ show.id | tojson }};
+  async function load(force) {
+    $("#summary").innerHTML = `<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:-3px"></span>&nbsp; Writing your recap…`;
+    try {
+      const { recap } = await api(`/api/shows/${showId}/recap${force ? "?force=true" : ""}`, { method: "POST" });
+      $("#summary").textContent = recap.summary;
+      $("#ai-pill").textContent = recap.ai_used ? "AI summary · figures from PayPal records" : "Summary · AI unavailable";
+      $("#messages").innerHTML = recap.messages.length ? "" : `<p class="empty">No paid orders to follow up.</p>`;
+      for (const m of recap.messages) {
+        const el = document.createElement("div");
+        el.className = "message-card";
+        el.innerHTML = `<div class="row"><strong>${esc(m.buyer_name)}</strong><span class="tiny muted">${esc(m.order_number)} · ${esc(m.item)} · ${esc(m.amount_display)}</span>
+          <span class="grow"></span><button class="btn btn-ghost btn-sm">Copy</button></div><p>${esc(m.message)}</p>`;
+        el.querySelector("button").onclick = async () => {
+          try { await navigator.clipboard.writeText(m.message); toast("Message copied"); } catch (_) { toast("Copy failed"); }
+        };
+        $("#messages").append(el);
+      }
+    } catch (e) {
+      $("#summary").textContent = e.message;
+    }
+  }
+  $("#regen").onclick = () => load(true);
+  load(false);
+})();
+</script>
+{% endblock %}
