@@ -6,9 +6,8 @@ It is not an auction: the price is fixed and speed decides. Buyers need no app a
 
 > Built for the PayPal AI Hackathon (Devpost). PayPal sandbox only.
 
-![The race: two buyers, one unit — one wins, the other is not charged](docs/race.gif)
-
-<!-- Record docs/race.gif with two sandbox buyers following docs/DEMO_SCRIPT.md step 3. -->
+<!-- TODO: record docs/race.gif with two sandbox buyers (docs/DEMO_SCRIPT.md, 1:00–1:40), then add:
+![The race: two buyers, one unit — one wins, the other is not charged](docs/race.gif) -->
 
 **Hosted demo:** `https://<your-render-service>.onrender.com` (see [Try it in 2 minutes](#try-it-in-2-minutes)).
 

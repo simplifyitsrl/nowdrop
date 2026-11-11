@@ -252,7 +252,7 @@ class AnthropicAI:
             "text": f"The shop's currency is {currency}.\n\nTranscript:\n<transcript>\n{text}\n</transcript>",
         })
         data = await self._json(system=EXTRACTION_SYSTEM, content=content, schema=EXTRACTION_SCHEMA,
-                                max_tokens=2000, effort="low")
+                                max_tokens=8000, effort="low")
         return Extraction(
             is_product=bool(data.get("is_product")),
             title=str(data.get("title") or "").strip(),
@@ -273,7 +273,7 @@ class AnthropicAI:
             try:
                 response = await client.messages.create(
                     model=self.model,
-                    max_tokens=4000,
+                    max_tokens=8000,
                     system=f"{ASSISTANT_SYSTEM}\n\n{context}",
                     tools=ASSISTANT_TOOLS,
                     messages=messages,

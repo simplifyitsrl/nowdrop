@@ -10,4 +10,6 @@ Things that differ from, or were not specified in, the build spec.
 - **Authorization failure** (e.g. instrument declined at authorize time) marks the attempt `abandoned` and tells the buyer they were not charged; no unit is taken.
 - **Seller-only routes** are protected by the unguessable show id (no login), including refunds, which must send the show id.
 - **Extra columns:** `shows.currency`, `shows.recap_json`, `orders.refund_id`, `paypal_log.show_id`.
+- **Extraction latency.** Target is under 3 s from trigger word to live. Extraction runs at `effort: "low"` with adaptive thinking. If a live run is slow, the next lever is disabling thinking for extraction (Claude Haiku 5.5 accepts `thinking: {"type": "disabled"}` at effort high or below), not a smaller model.
+- **Speech language.** Spanish uses `es-419`; if Chrome reports `language-not-supported`, the console retries with `es-MX`.
 - **Sandbox behaviour to verify on the first live run** (adapt and record here if it differs): authorize response contains `payer.name` and `payer.email_address`; void returns `204 No Content`; capture with `Prefer: return=representation` returns status `COMPLETED`.

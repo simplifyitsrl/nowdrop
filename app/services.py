@@ -195,10 +195,11 @@ class NowDrop:
                  quantity, quantity, draft.image_path, draft.source_text[:2000], now_iso()),
             )
             drop_id = cur.lastrowid
-        for row in closed:
-            self.broker.publish_show(show, "drop_closed", self.public_drop(self.get_drop(row["id"])))
+        # Announce the new drop first so buyers never flash the "waiting" screen.
         drop = self.get_drop(drop_id)
         self.broker.publish_show(show, "drop_live", self.public_drop(drop))
+        for row in closed:
+            self.broker.publish_show(show, "drop_closed", self.public_drop(self.get_drop(row["id"])))
         return drop
 
     def close_drop(self, show: dict, drop_id: int | None = None) -> dict | None:

@@ -314,9 +314,9 @@
     renderTranscript();
   }
 
-  function startRecognition() {
+  function startRecognition(lang) {
     recognition = new Recognition();
-    recognition.lang = $("#lang").value;
+    recognition.lang = lang || $("#lang").value;
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.onresult = (ev) => {
@@ -329,6 +329,13 @@
       renderTranscript();
     };
     recognition.onerror = (ev) => {
+      if (ev.error === "language-not-supported" && recognition.lang === "es-419") {
+        toast("Using Spanish (Mexico) for speech recognition");
+        recognition.onend = null;
+        try { recognition.stop(); } catch (_) { /* not running */ }
+        startRecognition("es-MX");
+        return;
+      }
       if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
         toast("Microphone access was blocked. Allow it in the browser, or type instead.", 4500);
         setListening(false);
